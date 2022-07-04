@@ -28,16 +28,20 @@ router.post('/delete', authen, async (req, res) => {
   const user = await User.findOne({ userID: req.id })
   const { addressID } = req.body
   const address = await Address.findOne({ _id: addressID })
+
   if (user) {
-    if (user.addressList[addressID]) {
-      delete user.addressList[addressID]
-      if (address) {
-        await Address.deleteOne({ _id: addressID })
-      } else {
-        res.status(404).send({
-          message: 'Address not found.',
-        })
-      }
+    // remove address from user's address list
+    if (user.addressList.contains(addressID)) {
+      newAddressList = user.addressList.filter(
+        (address) => address !== addressID,
+      )
+      //   update in user collection
+      await User.findByIdAndUpdate(
+        { _id: user._id },
+        { addressList: newAddressList },
+      )
+      // delete in address collection
+      await Address.deleteOne({ _id: addressID })
       res.status(200).send({ message: 'Deleted' })
     } else
       res.status(404).send({
@@ -70,6 +74,7 @@ router.post('/add', authen, async (req, res) => {
   const user = await User.findOne({ userId: req.id })
   const { address } = req.body
   if (user) {
+    // create new address with user id
     const userAddress = {
       userID: req.id,
       ...address,
@@ -88,38 +93,26 @@ router.post('/add', authen, async (req, res) => {
             err.message || 'Some error occurred while adding the address.',
         }),
       )
-    user.addressList[newAddress._id] = newAddress.defaultAddress
-  } else {
-    res.status(404).send({
-      message: 'User not found',
-    })
-  }
-})
 
-router.post('/getDefault', authen, async (req, res) => {
-  const user = await User.findOne({ userId: req.id })
-  if (user) {
-    if (user.addressList) {
-      const list = Object.keys(user.addressList)
-      let i = 0
-      while (i < list.length) {
-        if (user.addressList[list[i]]) {
-          res.status(200).send({
-            message: list[i],
-          })
-          break
-        } else {
-          i++
-        }
-      }
+    // update user's address list
+    user.addressList.push(newAddress._id)
+    await User.findByIdAndUpdate(
+      { _id: user._id },
+      { addressList: user.addressList },
+    )
+
+    // update address collection based on the default option
+    if (newAddress.defaultAddress) {
+      Address.updateMany({ userID: req.id }, { defaultAddress: false })
+      Address.findByIdAndUpdate(newAddress._id, { defaultAddress: true })
     } else {
-      res.status(404).send({
-        message: 'User address not found.',
-      })
+      if (user.addressList.length < 1) {
+        Address.findByIdAndUpdate(newAddress._id, { defaultAddress: true })
+      }
     }
   } else {
     res.status(404).send({
-      message: 'User not found.',
+      message: 'User not found',
     })
   }
 })

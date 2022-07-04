@@ -41,6 +41,7 @@ router.post('/add', authen, async (req, res) => {
     try {
       await Cart.updateOne(
         { userID: req.id },
+
         {
           list: userCart.list,
           totalQuantity: userCart.totalQuantity,
