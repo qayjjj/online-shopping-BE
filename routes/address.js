@@ -40,8 +40,25 @@ router.post('/delete', authen, async (req, res) => {
         { _id: user._id },
         { addressList: newAddressList },
       )
+
       // delete in address collection
       await Address.deleteOne({ _id: addressID })
+
+      // Update other address(es) if the deleted one was the default
+      if (address.defaultAddress) {
+        if (newAddressList.length == 1) {
+          await Address.updateOne(
+            { userID: user._id },
+            { defaultAddress: true },
+          )
+        } else {
+          await Address.findOneAndUpdate(
+            { userID: user._id },
+            { defaultAddress: true },
+          )
+        }
+      }
+
       res.status(200).send({ message: 'Deleted' })
     } else
       res.status(404).send({
