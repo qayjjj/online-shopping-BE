@@ -19,9 +19,6 @@ const UserModel = new Schema({
     unique: true,
     required: true,
   },
-  addressList: {
-    type: Object,
-  },
 })
 
 module.exports = mongoose.model('users', UserModel)
