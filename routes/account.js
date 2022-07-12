@@ -7,16 +7,12 @@ const authen = require('../middleware/auth')
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body
-  const user = await User.findOne({ email: email })
+  const user = await User.findOne({ email, password }).lean()
   if (user) {
-    if (password === user.password) {
-      const token = jwt.sign({ email, id: user._id }, jwtKey)
-      res.send({ message: 'Logged in.', token, userID: user._id })
-    } else {
-      res.status(403).send({ message: 'Wrong credentials.' })
-    }
+    const token = jwt.sign({ email, id: user._id }, jwtKey)
+    res.send({ message: 'Logged in.', token, userID: user._id })
   } else {
-    res.status(403).send({ message: 'User not registered.' })
+    res.status(403).send({ message: 'Wrong credentials.' })
   }
 })
 
