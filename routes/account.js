@@ -46,4 +46,9 @@ router.post('/verify', authen, async (req, res) => {
   res.send({ message: 'Ok.' })
 })
 
+router.get('/getAll', async (req, res) => {
+  const allAccounts = await User.find({})
+  res.status(200).json({ message: allAccounts })
+})
+
 module.exports = router

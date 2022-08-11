@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const jwtKey = process.env.KEY || ''
 const Cart = require('../models/cart')
 const Order = require('../models/order')
+const Product = require('../models/product')
 const Address = require('../models/address')
 const authen = require('../middleware/auth')
 
@@ -32,6 +33,17 @@ router.post('/complete', authen, async (req, res) => {
             err.message || 'Some error occurred while completing the order.',
         })
       })
+
+    await Promise.all(
+      Object.keys(order.list).map(async (key) => {
+        const product = await Product.findById(key).lean()
+        if (product.sold)
+          await Product.findByIdAndUpdate(key, {
+            sold: product.sold + order.list[key],
+          })
+        else await Product.findByIdAndUpdate(key, { sold: order.list[key] })
+      }),
+    )
   } else {
     res.status(404).send({
       message: 'User not found.',

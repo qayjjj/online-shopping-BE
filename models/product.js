@@ -22,6 +22,9 @@ const ProductModel = new Schema({
     type: String,
     required: true,
   },
+  sold: {
+    type: String,
+  },
 })
 
 module.exports = mongoose.model('products', ProductModel)
