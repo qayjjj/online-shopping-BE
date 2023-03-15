@@ -19,6 +19,13 @@ const UserModel = new Schema({
     unique: true,
     required: true,
   },
+  password: {
+    type: String,
+    required: true,
+  },
+  friends: {
+    type: Array,
+  },
 })
 
 module.exports = mongoose.model('users', UserModel)

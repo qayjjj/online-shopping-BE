@@ -7,6 +7,10 @@ const InboxModel = new Schema({
     type: Array,
     required: true,
   },
+  lastMsg: {
+    type: String,
+    required: true,
+  },
   user1: {
     type: Schema.Types.ObjectId,
     ref: UserModel,

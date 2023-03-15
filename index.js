@@ -49,6 +49,7 @@ io.on('connection', async (socket) => {
 
   // private message
   socket.on('sendMsg', ({ content, toUser, toChat }) => {
+    console.log('eeee')
     sendMessage(content, socket.userID, toUser)
     io.to(toChat).emit('receiveMsg', {
       content,

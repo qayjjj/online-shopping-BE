@@ -24,7 +24,7 @@ router.post('/getLatestTexts', authen, async (req, res) => {
   const data = []
   await Promise.all(
     users.map(async (user) => {
-      if (user !== req.irsd) {
+      if (user !== req.id) {
         const inbox = await Inbox.findOne({
           $or: [
             { user1: user._id, user2: req.id },

@@ -2,7 +2,7 @@ const Inbox = require('../models/inbox')
 
 const sendMessage = async (content, from, to) => {
   const inbox = await Inbox.findOne({ $or: [{ user1: from }, { user1: to }] })
-
+  console.log(inbox)
   const message = {
     content,
     from,
@@ -29,6 +29,7 @@ const sendMessage = async (content, from, to) => {
     newInbox
       .save()
       .then(() => {
+        console.log('first')
         return true
       })
       .catch((err) => {
